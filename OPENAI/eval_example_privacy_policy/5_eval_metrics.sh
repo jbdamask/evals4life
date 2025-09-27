@@ -4,6 +4,18 @@ This script computes evaluation metrics for a binary classifier from an OpenAI E
 INTERPRETING THE RESULTS
 ========================
 
+Metric priorities for this task:
+--------------------------------
+- Primary: F2 (High Risk) → this is the main number to track, because it
+   weights recall more heavily and penalizes missed High Risks (false negatives).
+- Supporting: Recall (High Risk) and Precision (High Risk) → these show why
+   F2 moves up or down (coverage vs noise).
+- Sanity check: Balanced Accuracy → confirms the model isn’t completely
+   lopsided toward one class, but it’s not the decision driver.
+- Accuracy: lowest value here; easy to inflate with imbalanced data, so report
+   it for completeness but don’t optimize for it.
+
+
 Confusion Matrix
 ----------------
 - Shows counts of model predictions vs. actual labels:
@@ -25,6 +37,10 @@ Positive Class Metrics (e.g. "High Risk")
   → Of all true positives, how many did the model find?
 - F1 Score: Harmonic mean of Precision and Recall
   → Single number balancing precision and recall. Low if either is poor.
+- F2 (Positive class only): Like F1 but recall is weighted more heavily,
+  so the score penalizes missed High Risk cases (false negatives) more than
+  false alarms (false positives).
+
 
 Negative Class Metrics (e.g. "Low Risk")
 ----------------------------------------
@@ -47,6 +63,7 @@ Practical Guidance
 - If Precision is low, the model generates too many false alarms.
 - F1 is a good summary for the positive class when both false alarms and misses are costly.
 - Use Macro F1 and Balanced Accuracy when dataset is imbalanced to avoid being misled by Accuracy.
+- F2 (Positive class only): Like F1 but recall is weighted so that false negatives are penalized more than false positives.
 '
 
 
@@ -142,6 +159,10 @@ END {
   prec_pos = safe_div(TP, TP+FP)
   rec_pos  = safe_div(TP, TP+FN)
   f1_pos   = (prec_pos+rec_pos==0)?0:(2*prec_pos*rec_pos/(prec_pos+rec_pos))
+  # F2 score for positive class (beta=2): emphasizes recall 4x vs precision
+  # F_beta = (1+beta^2) * (P*R) / (beta^2*P + R)
+  # Here: beta=2 -> (1+4)=5 and beta^2=4
+  f2_pos   = ( (4*prec_pos + rec_pos)==0 ) ? 0 : (5*prec_pos*rec_pos/(4*prec_pos + rec_pos))
 
   prec_neg = safe_div(TN, TN+FN)
   rec_neg  = safe_div(TN, TN+FP)
@@ -170,6 +191,7 @@ END {
   printf("  Precision:           %.4f\n", prec_pos)
   printf("  Recall:              %.4f\n", rec_pos)
   printf("  F1:                  %.4f\n", f1_pos)
+  printf("  F2 (recall-weighted):%.4f\n", f2_pos)
   print("")
   printf("Negative class metrics (%s):\n", NEG)
   printf("  Precision:           %.4f\n", prec_neg)
