@@ -1,6 +1,19 @@
+#!/usr/bin/env bash
+#
+# STEP 2: Create evaluation definition
+#
+# IMPORTANT: Use 'source' to run this script so the exported variable persists:
+#   source ./2_create_eval_privacy_policy.sh [EVAL_NAME]
+#
+# Alternative method:
+#   eval "$(./2_create_eval_privacy_policy.sh [EVAL_NAME] | tail -1)"
+#
+# Exports: eval_id (required for subsequent scripts)
+# Example: source ./2_create_eval_privacy_policy.sh "Privacy Policy Classifier"
+
 EVAL_NAME="${1:-String Match Eval}"
 
-curl https://api.openai.com/v1/evals \
+RESPONSE=$(curl https://api.openai.com/v1/evals \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
     -H "Content-Type: application/json" \
     -d @- <<EOF
@@ -28,3 +41,11 @@ curl https://api.openai.com/v1/evals \
             }
         ]
     }
+EOF
+)
+
+echo "$RESPONSE"
+
+EVAL_ID_VALUE=$(echo "$RESPONSE" | jq -r '.id')
+export eval_id="$EVAL_ID_VALUE"
+echo "export eval_id=\"$EVAL_ID_VALUE\""

@@ -71,16 +71,27 @@ Practical Guidance
 set -euo pipefail
 
 # Usage:
-#   ./eval_metrics_v2.sh <evalrun.json> [<POS_LABEL> <NEG_LABEL>]
+#   ./5_eval_metrics.sh [<evalrun.json>] [<POS_LABEL> <NEG_LABEL>]
+#
+# If no file is provided, uses $outfile environment variable from step 4.
 # Defaults assume labels "High Risk" (positive) and "Low Risk" (negative).
 # Requires: jq, awk
 
-if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <evalrun.json> [<POS_LABEL> <NEG_LABEL>]" >&2
-  exit 1
+if [[ $# -gt 0 ]]; then
+  FILE="$1"
+else
+  FILE="${outfile:-}"
+  if [[ -z "$FILE" ]]; then
+    echo "Error: No input file specified and \$outfile environment variable not set." >&2
+    echo "" >&2
+    echo "Usage: $0 [<evalrun.json>] [<POS_LABEL> <NEG_LABEL>]" >&2
+    echo "" >&2
+    echo "Either:" >&2
+    echo "  1. Run step 4 first: eval \"\$(./4_retrieve_eval_run_results.sh | tail -1)\"" >&2
+    echo "  2. Or specify file directly: $0 my_results.json" >&2
+    exit 1
+  fi
 fi
-
-FILE="$1"
 POS_LABEL="${2:-High Risk}"
 NEG_LABEL="${3:-Low Risk}"
 

@@ -1,20 +1,35 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# Note: set -euo pipefail removed for source compatibility
+# When sourced, these options affect the parent shell and can cause terminal exit
 
-# Usage:
-#   ./get_all_eval_output_items.sh <EVAL_ID> <EVAL_RUN_ID> [OUTFILE]
-#   ./get_all_eval_output_items.sh <EVAL_ID> <EVAL_RUN_ID> --stdout
 #
-# Requires: jq, curl, $OPENAI_API_KEY
+# STEP 4: Retrieve evaluation results
+#
+# RECOMMENDED: Use eval method for reliable file creation and variable export:
+#   eval "$(./4_retrieve_eval_run_results.sh [OUTFILE|--stdout] | tail -1)"
+#
+# Note: source method has file creation issues, use eval instead
+#
+# Requires env vars: eval_id, eval_run_id (from steps 2 & 3)
+# Exports: outfile (filename when results saved to file)
+# Examples:
+#   source ./4_retrieve_eval_run_results.sh                    # saves to auto-generated filename
+#   source ./4_retrieve_eval_run_results.sh my_results.json   # saves to custom filename
+#   source ./4_retrieve_eval_run_results.sh --stdout          # outputs to terminal only
 
-if [[ $# -lt 2 || -z "${1:-}" || -z "${2:-}" ]]; then
-  echo "Usage: $0 <EVAL_ID> <EVAL_RUN_ID> [OUTFILE|--stdout]" >&2
-  exit 1
+EVAL_ID="${eval_id:-}"
+EVAL_RUN_ID="${eval_run_id:-}"
+OUTARG="${1:-}"
+
+if [[ -z "$EVAL_ID" ]]; then
+  echo "Error: eval_id environment variable not set. Run script 2 first." >&2
+  return 1 2>/dev/null || exit 1
 fi
 
-EVAL_ID="$1"
-EVAL_RUN_ID="$2"
-OUTARG="${3:-}"
+if [[ -z "$EVAL_RUN_ID" ]]; then
+  echo "Error: eval_run_id environment variable not set. Run script 3 first." >&2
+  return 1 2>/dev/null || exit 1
+fi
 TO_STDOUT=false
 if [[ "$OUTARG" == "--stdout" ]]; then
   TO_STDOUT=true
@@ -43,7 +58,7 @@ while true; do
   if ! echo "$RESP" | jq -e . >/dev/null 2>&1; then
     echo "Error: non-JSON response on page $PAGE" >&2
     echo "$RESP" >&2
-    exit 2
+    return 2 2>/dev/null || exit 2
   fi
 
   # Extract page data and append
@@ -70,6 +85,13 @@ done
 if $TO_STDOUT; then
   cat "$TMP"   # JSON to stdout only
 else
-  mv "$TMP" "$OUTFILE"
-  echo "Wrote ${TOTAL} items to ${OUTFILE}" >&2
+  # Use cp instead of mv for more reliable file operations when sourced
+  if cp "$TMP" "$OUTFILE" && rm -f "$TMP"; then
+    echo "Wrote ${TOTAL} items to ${OUTFILE}" >&2
+    export outfile="$OUTFILE"
+    echo "export outfile=\"$OUTFILE\""
+  else
+    echo "Error: Failed to write output file $OUTFILE" >&2
+    return 1 2>/dev/null || exit 1
+  fi
 fi
