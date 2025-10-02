@@ -93,30 +93,24 @@ The scripts automatically export these variables for use in subsequent steps:
 ```bash
 # Step 1: Upload dataset
 source ./1_eval_prep_file_upload.sh privacy_policy_evals_100_records.jsonl
-echo "File ID: $file_id"
 
 # Step 2: Create evaluation
 source ./2_create_eval.sh "Privacy Policy Risk Classifier"
-echo "Eval ID: $eval_id"
 
 # Step 3a: Run evaluation
 source ./3_create_eval_run.sh dumb_classifier_prompt.md
-echo "Eval Run ID: $eval_run_id"
 
 # Step 4a: Get results (using eval method)
 eval "$(./4_retrieve_eval_run_results.sh | tail -1)"
-echo "Results saved to: $outfile"
 
 # Step 5a: Calculate metrics
 ./5_eval_metrics.sh
 
 # Step 3b: Run evaluation
 source ./3_create_eval_run.sh risk_classifier_prompt_dspy_optimized_v5.md
-echo "Eval Run ID: $eval_run_id"
 
 # Step 4b: Get results (using eval method)
 eval "$(./4_retrieve_eval_run_results.sh | tail -1)"
-echo "Results saved to: $outfile"
 
 # Step 5b: Calculate metrics
 ./5_eval_metrics.sh
