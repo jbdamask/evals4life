@@ -43,7 +43,7 @@ source ./1_eval_prep_file_upload.sh privacy_policy_evals_100_records.jsonl
 
 ### Step 2: Create Evaluation Definition
 ```bash
-source ./2_create_eval.sh "Privacy Policy Classifier"
+source ./2_create_custom_string_check_eval.sh "Privacy Policy Classifier"
 ```
 - Creates the evaluation configuration
 - **Exports**: `eval_id` (used by steps 3 & 4)
@@ -95,7 +95,7 @@ The scripts automatically export these variables for use in subsequent steps:
 source ./1_eval_prep_file_upload.sh privacy_policy_evals_100_records.jsonl
 
 # Step 2: Create evaluation
-source ./2_create_eval.sh "Privacy Policy Risk Classifier"
+source ./2_create_custom_string_check_eval.sh "Privacy Policy Risk Classifier"
 
 # Step 3a: Run evaluation
 source ./3_create_eval_run.sh dumb_classifier_prompt.md
