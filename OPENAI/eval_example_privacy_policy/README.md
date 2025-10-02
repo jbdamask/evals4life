@@ -1,6 +1,6 @@
 # OpenAI Evals Example: Privacy Policy Classification
 
-This directory contains a complete workflow for running OpenAI evaluations using their Evals API. The scripts are designed to work together, automatically passing variables between steps.
+This repo contains a complete workflow for running OpenAI evaluations using their Evals API. The scripts are designed to work together, automatically passing variables between steps. 
 
 ## Prerequisites
 
@@ -54,7 +54,7 @@ source ./2_create_eval.sh "Privacy Policy Classifier"
 source ./3_create_eval_run.sh <system_prompt_file> <openai_model>
 ```
 - Creates and starts an evaluation run
-- **Requires**: `eval_id` and `file_id` from previous steps
+- **Requires**: `eval_id` and `file_id` from previous steps and a system prompt file
 - **Exports**: `eval_run_id` (used by step 4)
 - Second parameter (model) is optional (defaults to gpt-4.1)
 
