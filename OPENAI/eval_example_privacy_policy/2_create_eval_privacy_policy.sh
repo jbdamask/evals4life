@@ -3,7 +3,7 @@ curl https://api.openai.com/v1/evals \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
     -H "Content-Type: application/json" \
     -d '{
-        "name": "Privacy Policy Categorization",
+        "name": "Privacy Policy Categorization v2",
         "data_source_config": {
             "type": "custom",
             "item_schema": {
