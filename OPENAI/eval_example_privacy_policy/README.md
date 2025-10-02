@@ -36,7 +36,7 @@ Executing scripts normally, e.g. ./1_eval_prep_file_upload <file>, will work but
 
 ### Step 1: Upload Dataset File
 ```bash
-source ./1_eval_prep_file_upload.sh privacy_policy_evals_40_records.jsonl
+source ./1_eval_prep_file_upload.sh privacy_policy_evals_100_records.jsonl
 ```
 - Uploads your evaluation dataset to OpenAI
 - **Exports**: `file_id` (used by step 3)
@@ -92,7 +92,7 @@ The scripts automatically export these variables for use in subsequent steps:
 
 ```bash
 # Step 1: Upload dataset
-source ./1_eval_prep_file_upload.sh privacy_policy_evals_40_records.jsonl
+source ./1_eval_prep_file_upload.sh privacy_policy_evals_100_records.jsonl
 echo "File ID: $file_id"
 
 # Step 2: Create evaluation
